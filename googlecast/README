@@ -1,0 +1,44 @@
+## RemoteRTC GoogleCast Receiver
+This googlecast receiver app allows its launcher to create peer connections on
+the receiver, show one media stream at a time and display info messages.
+
+# Cool, how do I use it?
+At the moment you need to include client.js, dnode-expose-bundle.js and
+../interface.js. That will provide a connectToCastDevice(ondeviceCallback)
+method that connects to a googlecast device and instantiates an interface to it
+with the methods (read remote-rtc/README for details):
+  - device.CreatePeerConnection(onRemoteConnection, config, constraints);
+  - device.SetCurrentMediaStream(mediastream);
+  - device.ShowInfo(info);
+
+# Do you have any sample sender?
+Yes, pc1.html is a sample sender app based on webrtc pc1.html that sends a video
+stream from the local machine to the googlecast receiver.
+
+# How does it work?
+When the receiver app is launched on the googlecast receiver it instantiates a
+RemoteRTC Device and exposes it, using dnode, on a googlecast channel on
+namespace 'urn:x-cast:remote-rtc'. The sender app connects to that instance
+and creates a RemoteRTC RemoteDeviceInterface to it, allowing the developer
+to use the exposed methods (such as CreatePeerConnection, SetCurrentMediaSream,
+ShowInfo).
+
+# What is this dnode and this dnode-expose-bundle.js with unreadable javascript?
+dnode - https://github.com/substack/dnode (MIT license):
+  """Dnode is an asynchronous rpc system for node.js that lets you call remote
+     functions. You can pass callbacks to remote functions, and the remote end
+     can call the functions you passed in with callbacks of its own and so on.
+     It's callbacks all the way down!"""
+
+dnode-expose-bundle.js:
+  dnode-expose is a thin layer that helps using dnode on html5. That is achieved
+  by wrapping node.js streams into MessagePort (html5 webmessaging) and using
+  browserify to create dnode-expose-bundle.js that allows to use dnode outside
+  node.js-like projects.
+
+## Anything else I need to know?
+ - there is barely any error handling for both googlecast code and dnode code.
+ - there are likely javascript memory leaks when passing callbacks around with
+   dnode and never disposing them.
+ - googlecast seems to have problems to receive more than one video stream at
+   a time.
